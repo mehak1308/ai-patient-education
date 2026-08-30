@@ -4,9 +4,42 @@ from html import unescape
 import re
 
 
-# ========================================
-# MEDLINEPLUS MEDICAL SOURCE
-# ========================================
+# ============================================================
+# SAFETY KEYWORDS
+# ============================================================
+
+emergency_keywords = [
+    "chest pain",
+    "difficulty breathing",
+    "can't breathe",
+    "cannot breathe",
+    "severe bleeding",
+    "unconscious",
+    "loss of consciousness",
+    "stroke",
+    "heart attack",
+    "suicidal",
+    "overdose"
+]
+
+personal_keywords = [
+    "do i have",
+    "could i have",
+    "am i having",
+    "what should i take",
+    "what medication should i take",
+    "what medicine should i take",
+    "should i take",
+    "what dose should i take",
+    "how much medication should i take",
+    "should i stop taking",
+    "should i change my medication"
+]
+
+
+# ============================================================
+# MEDLINEPLUS SEARCH FUNCTION
+# ============================================================
 
 def get_medical_information(topic):
 
@@ -14,7 +47,9 @@ def get_medical_information(topic):
 
     params = {
         "db": "healthTopics",
-        "term": topic
+        "term": topic,
+        "rettype": "brief",
+        "retmax": 1
     }
 
     try:
@@ -39,13 +74,13 @@ def get_medical_information(topic):
         clean_title = re.sub(
             r"<.*?>",
             "",
-            unescape(title.text)
-        )
+            unescape(title.text or "")
+        ).strip()
 
         clean_summary = re.sub(
             r"<.*?>",
             " ",
-            unescape(summary.text)
+            unescape(summary.text or "")
         )
 
         clean_summary = re.sub(
@@ -54,50 +89,17 @@ def get_medical_information(topic):
             clean_summary
         ).strip()
 
-        return clean_title, clean_summary
+        source_url = document.get("url")
+
+        return clean_title, clean_summary, source_url
 
     except Exception:
         return None
 
 
-# ========================================
-# SAFETY KEYWORDS
-# ========================================
-
-emergency_keywords = [
-    "chest pain",
-    "difficulty breathing",
-    "can't breathe",
-    "cannot breathe",
-    "severe bleeding",
-    "unconscious",
-    "loss of consciousness",
-    "stroke",
-    "heart attack",
-    "suicidal",
-    "overdose"
-]
-
-
-personal_keywords = [
-    "do i have",
-    "do i have diabetes",
-    "do i have asthma",
-    "am i sick",
-    "what should i take",
-    "what medication should i take",
-    "what medicine should i take",
-    "should i take",
-    "what should i do",
-    "my symptoms",
-    "my pain",
-    "my condition"
-]
-
-
-# ========================================
-# APPLICATION
-# ========================================
+# ============================================================
+# AI PATIENT EDUCATION ASSISTANT
+# ============================================================
 
 print("========================================")
 print("       AI PATIENT EDUCATION")
@@ -107,45 +109,36 @@ print("Enter 'quit' when you want to stop.\n")
 
 while True:
 
-    topic = input("Enter a healthcare topic: ")
+    topic = input("Enter a healthcare topic: ").strip()
 
-    topic_lower = topic.lower().strip()
-
-
-    # ====================================
-    # QUIT
-    # ====================================
-
-    if topic_lower == "quit":
-
-        print("\nThank you for using the Patient Education Assistant.")
-
-        break
-
-
-    # ====================================
+    # --------------------------------------------------------
     # EMPTY INPUT
-    # ====================================
+    # --------------------------------------------------------
 
-    if not topic_lower:
-
+    if not topic:
         print("\n----------------------------------------")
         print("NO TOPIC ENTERED")
         print("----------------------------------------")
-        print("Please enter a healthcare topic.")
-        print("----------------------------------------\n")
-
+        print("Please enter a healthcare topic.\n")
         continue
 
+    # --------------------------------------------------------
+    # QUIT
+    # --------------------------------------------------------
 
-    # ====================================
+    if topic.lower() == "quit":
+        print("\nThank you for using the Patient Education Assistant.")
+        break
+
+    topic_lower = topic.lower()
+
+    # --------------------------------------------------------
     # EMERGENCY SAFETY CHECK
-    # ====================================
+    # --------------------------------------------------------
 
     if any(keyword in topic_lower for keyword in emergency_keywords):
 
-        print("\n----------------------------------------")
-        print("⚠️ POTENTIAL MEDICAL EMERGENCY")
+        print("\n⚠️ POTENTIAL MEDICAL EMERGENCY")
         print("----------------------------------------")
         print("This tool cannot safely assess emergency symptoms.")
         print("If you are experiencing severe or concerning symptoms,")
@@ -155,10 +148,9 @@ while True:
 
         continue
 
-
-    # ====================================
-    # PERSONAL MEDICAL QUESTION CHECK
-    # ====================================
+    # --------------------------------------------------------
+    # PERSONAL MEDICAL QUESTION SAFETY CHECK
+    # --------------------------------------------------------
 
     if any(keyword in topic_lower for keyword in personal_keywords):
 
@@ -174,17 +166,11 @@ while True:
 
         continue
 
-
-    # ====================================
-    # GET MEDLINEPLUS INFORMATION
-    # ====================================
+    # --------------------------------------------------------
+    # RETRIEVE MEDICAL INFORMATION FROM MEDLINEPLUS
+    # --------------------------------------------------------
 
     result = get_medical_information(topic)
-
-
-    # ====================================
-    # NO RELIABLE SOURCE
-    # ====================================
 
     if result is None:
 
@@ -199,129 +185,84 @@ while True:
 
         continue
 
+    title, medical_information, source_url = result
 
-    # ====================================
-    # SOURCE INFORMATION
-    # ====================================
-
-    title, medical_information = result
-
-
-    # ====================================
+    # --------------------------------------------------------
     # AI PROMPT
-    # ====================================
+    # --------------------------------------------------------
 
     prompt = f"""
 You are a healthcare patient-education assistant.
 
-Your job is to transform reliable medical information into
-clear, easy-to-understand educational information for a
-general adult patient.
+Your purpose is to explain reliable medical information
+in simple language for a general adult audience.
 
-IMPORTANT SOURCE RULE:
+You are NOT a doctor.
 
-The medical information provided below comes from MedlinePlus,
-a service of the U.S. National Library of Medicine.
+You must NOT:
+- diagnose the user
+- provide personalized medical advice
+- recommend a medication or dosage
+- tell someone to stop or change prescribed medication
+- replace emergency medical care
 
-Use this MedlinePlus information as your PRIMARY factual source.
+The user asked about:
 
-Do not invent medical facts.
-Do not add statistics.
-Do not add citations that are not provided.
-Do not contradict the source.
+{topic}
 
-If the source does not contain enough information to answer
-something, say that the information is not available rather
-than guessing.
+A medical source was retrieved from MedlinePlus,
+National Library of Medicine.
 
-MEDLINEPLUS TOPIC:
-
+SOURCE TITLE:
 {title}
 
-MEDLINEPLUS INFORMATION:
-
+SOURCE INFORMATION:
 {medical_information}
 
+Use the source information above as the primary factual basis
+for your response.
 
-AUDIENCE:
+Do not invent medical facts, statistics, guidelines, citations,
+medications, or treatments that are not supported by the source.
 
-General adult patient with no medical background.
+Write for a general adult patient with no medical background.
 
+Use plain English and short sentences.
 
-LANGUAGE:
-
-- Use plain, easy-to-understand English.
-- Avoid unnecessary medical terminology.
-- Explain medical terms when they are necessary.
-- Use short sentences.
-- Use bullet points where appropriate.
-
-
-FORMAT:
+Structure your answer exactly like this:
 
 ## What is it?
-
-Give a short explanation based on the MedlinePlus information.
-
+Give a short explanation.
 
 ## Common symptoms
-
-List important symptoms mentioned in the source.
-
-Do not imply that everyone experiences the same symptoms.
-
+List common symptoms when the source provides them.
 
 ## Common risk factors
-
-List important risk factors mentioned in the source.
-
+List important risk factors when the source provides them.
 
 ## How is it usually managed?
-
-Summarize management information from the source.
-
-Keep this high level.
+Give a high-level explanation based on the source.
 
 Do not provide personalized treatment recommendations.
 
-
 ## When should someone seek medical care?
-
-Explain warning signs or situations that may require
-professional medical attention based on the source.
-
+Explain situations where professional medical care may be appropriate.
 Clearly identify emergency situations when appropriate.
 
-
 ## Important note
+Explain that symptoms can have many causes and that a healthcare
+professional should be consulted for diagnosis.
 
-Explain that symptoms can have many causes and that a
-healthcare professional should be consulted for diagnosis
-and personalized treatment.
-
-
-SAFETY RULES:
-
-- Never diagnose the user.
-- Never tell the user they definitely have a condition.
-- Never provide personalized medication recommendations.
-- Never provide medication dosages.
-- Never tell someone to stop or change prescribed medication.
-- Never replace emergency medical care.
-- Do not invent medical information.
-- Do not invent statistics.
-- Do not invent medical guidelines.
-- Do not claim certainty when the source does not provide certainty.
+Do not claim that the user has the condition.
 
 End with exactly:
 
 This information is for general educational purposes and is not a substitute for professional medical advice.
 """
 
-
-    # ====================================
-    # SEND TO LOCAL AI
-    # ====================================
+    # --------------------------------------------------------
+    # SEND SOURCE-GROUNDED PROMPT TO LOCAL LLAMA
+    # --------------------------------------------------------
 
     try:
 
@@ -332,39 +273,41 @@ This information is for general educational purposes and is not a substitute for
                 "prompt": prompt,
                 "stream": False
             },
-            timeout=60
+            timeout=120
         )
 
         response.raise_for_status()
 
         ai_response = response.json()["response"]
 
-
     except Exception as error:
 
         print("\n----------------------------------------")
         print("AI SERVICE ERROR")
         print("----------------------------------------")
-        print("The local AI service could not generate a response.")
-        print("Please make sure Ollama is running.")
+        print("The medical source was found, but the AI service")
+        print("could not generate a response.")
+        print("Make sure Ollama is running.")
         print("----------------------------------------\n")
 
         continue
 
-
-    # ====================================
+    # --------------------------------------------------------
     # DISPLAY RESULT
-    # ====================================
+    # --------------------------------------------------------
 
-    print("\n========================================")
+    print("\n----------------------------------------")
     print("AI PATIENT EDUCATION")
-    print("========================================")
+    print("----------------------------------------")
 
-    print("\n")
     print(ai_response)
 
     print("\n----------------------------------------")
-    print("Source:")
+    print("SOURCE")
+    print("----------------------------------------")
     print("MedlinePlus — National Library of Medicine")
-    print("https://medlineplus.gov/")
+
+    if source_url:
+        print(f"Source URL: {source_url}")
+
     print("----------------------------------------\n")
