@@ -8,16 +8,17 @@ The application combines medical-source retrieval, safety screening, structured 
 
 ## Overview
 
-The **AI Patient Education Assistant** was designed to make general healthcare information easier to understand and navigate.
+The AI Patient Education Assistant was designed to make general healthcare information easier to understand and navigate.
 
-Rather than generating unsupported medical information, the application retrieves healthcare content from **MedlinePlus** and presents it in a structured, patient-friendly format.
+Rather than generating unsupported medical information, the application retrieves healthcare content from **MedlinePlus** and presents the information in a structured, patient-friendly format.
 
 The application also performs safety screening before providing educational information. Requests involving personal diagnosis, personalized treatment, medication recommendations, or potentially serious emergency symptoms are handled separately.
 
 ---
+
 ## Key Features
 
-### 1. Source-Grounded Medical Information
+### Source-Grounded Medical Information
 
 Healthcare information is retrieved from **MedlinePlus** using the National Library of Medicine's search service.
 
@@ -31,7 +32,7 @@ Users can search for recognized healthcare topics such as:
 
 The application identifies the medical source so users can understand where the information originated.
 
-### 2. Safety Screening
+### Safety Screening
 
 The application distinguishes between general educational questions and requests that require personalized medical judgment.
 
@@ -41,20 +42,65 @@ Examples include:
 Do I have diabetes?
 
 What medication should I take for high blood pressure?
+```
+
+For these types of requests, the application does not attempt to diagnose a condition or recommend individualized treatment.
+
+### Emergency Symptom Detection
+
+Certain potentially serious symptoms trigger a safety response rather than attempting to interpret or diagnose the symptom.
+
+Examples include:
+
+- Chest pain
+- Severe difficulty breathing
+- Loss of consciousness
+- Stroke-related symptoms
+- Severe bleeding
+- Seizures
+- Possible overdose
+
+The application directs users experiencing concerning symptoms toward immediate professional medical attention.
+
+### Structured Medical Presentation
+
+Retrieved medical information is organized into readable sections when the source provides recognizable headings.
+
+Examples include:
+
+- What is it?
+- What causes it?
+- Who is at risk?
+- Common symptoms
+- How is it diagnosed?
+- How is it treated?
+
+This makes lengthy source information easier to navigate.
+
+### Professional Web Interface
+
+The application uses Streamlit to provide:
+
+- Responsive web layout
+- Healthcare-focused visual design
+- Search interface
+- Structured medical information cards
+- Source verification section
+- Safety notices
+- Responsive styling
+
+---
+
 ## Technology Stack
 
-The application was built using the following technologies:
-
-| Technology | Purpose |
-|---|---|
-| **Python** | Core application logic |
-| **Streamlit** | Interactive web application interface |
-| **Requests** | HTTP requests to the MedlinePlus search service |
-| **XML Parsing** | Processing MedlinePlus search results |
-| **Regular Expressions** | Content cleaning, parsing, and safety-pattern matching |
-| **HTML/CSS** | Interface structure and visual styling |
-| **MedlinePlus / U.S. National Library of Medicine** | External medical information source |
-| **Git & GitHub** | Version control and project management |
+- Python
+- Streamlit
+- Requests
+- XML parsing
+- Regular expressions
+- MedlinePlus / U.S. National Library of Medicine
+- HTML/CSS
+- Git & GitHub
 
 ---
 
@@ -67,22 +113,26 @@ User enters healthcare topic
             ↓
       Safety screening
             ↓
-    ┌───────┴────────┐
-    │                │
-Safety concern    General topic
-    │                │
-    ↓                ↓
-Safety response   MedlinePlus search
-                       ↓
-                 Source retrieval
-                       ↓
+ ┌──────────┴───────────┐
+ │                      │
+Safety concern       General topic
+ │                      │
+ ↓                      ↓
+Safety response     MedlinePlus search
+                        ↓
+                  Source retrieval
+                        ↓
                   Content parsing
-                       ↓
-                Section organization
-                       ↓
+                        ↓
+              Section organization
+                        ↓
                 Patient education UI
-                       ↓
+                        ↓
               Source + safety notice
+```
+
+---
+
 ## Safety Design
 
 This project is intentionally designed as an educational information tool, not a diagnostic system.
@@ -112,19 +162,23 @@ Medical information is retrieved from:
 
 MedlinePlus is produced by the National Library of Medicine, part of the National Institutes of Health.
 
-**Official source:**  
+Official source:
+
 https://medlineplus.gov/
 
 The application uses MedlinePlus as its external medical information source rather than relying exclusively on manually written medical content.
 
 ---
+
 ## Example Usage
 
-### 1. General Healthcare Topic
+### General Healthcare Topic
 
 **Input:**
 
-    asthma
+```text
+asthma
+```
 
 The application retrieves information from MedlinePlus and presents available sections covering topics such as:
 
@@ -135,88 +189,180 @@ The application retrieves information from MedlinePlus and presents available se
 - Diagnosis
 - Treatment
 
-The medical source is displayed alongside the resulting educational information.
+The medical source is displayed with the resulting educational information.
 
----
-
-### 2. Personalized Medical Question
+### Personalized Medical Question
 
 **Input:**
 
-    Do I have diabetes?
+```text
+Do I have diabetes?
+```
 
 The application identifies the request as a personal medical question and does not attempt to determine whether the user has diabetes.
 
 Instead, it explains that the application provides general education and recommends professional medical guidance.
 
----
-
-### 3. Medication Request
+### Medication Request
 
 **Input:**
 
-    What medication should I take for high blood pressure?
+```text
+What medication should I take for high blood pressure?
+```
 
 The application does not recommend a medication or dosage.
 
 Instead, it directs the user toward personalized guidance from a qualified healthcare professional.
 
----
-
-### 4. Potential Medical Emergency
+### Potential Medical Emergency
 
 **Input:**
 
-    I have chest pain
+```text
+I have chest pain
+```
 
 The application does not attempt to determine the cause of the symptom.
 
 Instead, it displays an emergency-oriented safety message recommending immediate professional medical attention for severe or concerning symptoms.
 
----
-
-### 5. Invalid Topic
+### Invalid Topic
 
 **Input:**
 
-    xyzabc123
+```text
+xyzabc123
+```
 
 The application displays a message explaining that no reliable information was found through MedlinePlus and suggests trying a recognized healthcare topic.
 
----
-
-### 6. Empty Input
+### Empty Input
 
 If the user submits an empty search, the application asks them to enter a healthcare topic.
 
 ---
+
+## Screenshots
+
+### Main Application
+
+The main interface allows users to enter a general healthcare topic and learn how the application retrieves and presents source-grounded medical information.
+
+![AI Patient Education - Homepage](screenshots/01-homepage.png)
+
+### Medical Information Retrieval
+
+The application retrieves healthcare information from MedlinePlus and organizes the available information into structured, readable sections.
+
+![Medical Information Result](screenshots/02-medical-result.png)
+
+### Personal Medical Question Safety Handling
+
+Personalized medical questions are identified and handled without attempting to diagnose a condition or provide individualized treatment recommendations.
+
+![Personal Medical Question Safety Response](screenshots/03-safety-personal-question.png)
+
+### Emergency Symptom Safety Handling
+
+Potentially serious symptoms are handled separately from the normal educational-information workflow.
+
+![Emergency Safety Response](screenshots/04-emergency-safety.png)
+
+### Invalid Topic Handling
+
+When no reliable medical information is found through MedlinePlus, the application clearly communicates this to the user rather than generating unsupported information.
+
+![Invalid Topic Response](screenshots/05-invalid-topic.png)
+
+---
+
+## Project Structure
+
+```text
+ai-patient-education/
+│
+├── app.py
+├── web_app.py
+├── medical_source_test.py
+├── TESTING.md
+├── requirements.txt
+├── README.md
+├── .gitignore
+│
+└── screenshots/
+    ├── 01-homepage.png
+    ├── 02-medical-result.png
+    ├── 03-safety-personal-question.png
+    ├── 04-emergency-safety.png
+    └── 05-invalid-topic.png
+```
+
+---
+
+## File Descriptions
+
+### `web_app.py`
+
+The main Streamlit web application containing the user interface, safety screening, medical-source retrieval, content parsing, and result presentation.
+
+### `app.py`
+
+The command-line version of the patient education assistant.
+
+### `medical_source_test.py`
+
+A testing script used to verify retrieval of medical information from MedlinePlus.
+
+### `TESTING.md`
+
+Documents functional testing performed on the application's major retrieval, safety, and input-handling scenarios.
+
+### `requirements.txt`
+
+Contains the Python dependencies required to run the project.
+
+---
+
 ## Installation
 
 ### 1. Clone the repository
 
-    git clone https://github.com/mehak1308/ai-patient-education.git
+```bash
+git clone https://github.com/mehak1308/ai-patient-education.git
+```
 
 ### 2. Navigate into the project
 
-    cd ai-patient-education
+```bash
+cd ai-patient-education
+```
 
 ### 3. Create a virtual environment
 
-    python3 -m venv .venv
+```bash
+python3 -m venv .venv
+```
 
 ### 4. Activate the virtual environment
 
-**On macOS/Linux:**
+On macOS/Linux:
 
-    source .venv/bin/activate
+```bash
+source .venv/bin/activate
+```
 
 ### 5. Install dependencies
 
-    pip install -r requirements.txt
+```bash
+pip install -r requirements.txt
+```
 
 ### 6. Run the web application
 
-    streamlit run web_app.py
+```bash
+streamlit run web_app.py
+```
 
 The application will open in a local browser window.
 
@@ -224,9 +370,9 @@ The application will open in a local browser window.
 
 ## Testing
 
-The application was tested using multiple categories of input to verify medical-source retrieval, safety screening, and input handling.
+The application was tested using multiple categories of input.
 
-| Test Category | Example Input | Expected Behavior |
+| Test Category | Example | Expected Behavior |
 |---|---|---|
 | Valid medical topic | `asthma` | Retrieve and display MedlinePlus information |
 | Valid medical topic | `diabetes` | Retrieve source-grounded information |
@@ -234,38 +380,12 @@ The application was tested using multiple categories of input to verify medical-
 | Medication request | `What medication should I take?` | Do not provide personalized medication advice |
 | Emergency symptom | `I have chest pain` | Display emergency safety response |
 | Invalid topic | `xyzabc123` | Display no reliable source message |
-| Empty input | Blank | Ask the user to enter a healthcare topic |
+| Empty input | Blank | Ask user to enter a topic |
 
 Detailed testing information is documented in `TESTING.md`.
 
 ---
-## Project Structure
 
-    ai-patient-education/
-    │
-    ├── app.py
-    ├── web_app.py
-    ├── medical_source_test.py
-    ├── TESTING.md
-    ├── requirements.txt
-    ├── README.md
-    └── .gitignore
-
----
-
-## File Descriptions
-
-| File | Description |
-|---|---|
-| `web_app.py` | Main Streamlit web application containing the user interface, safety screening, medical-source retrieval, content parsing, and result presentation. |
-| `app.py` | Command-line version of the patient education assistant. |
-| `medical_source_test.py` | Testing script used to verify retrieval of medical information from MedlinePlus. |
-| `TESTING.md` | Documents functional testing performed on the application's major retrieval, safety, and input-handling scenarios. |
-| `requirements.txt` | Contains the Python dependencies required to run the project. |
-| `README.md` | Project documentation, setup instructions, architecture, safety design, testing, and limitations. |
-| `.gitignore` | Specifies files and directories that should not be tracked by Git. |
-
----
 ## Limitations
 
 ### Source Coverage
@@ -306,19 +426,22 @@ Potential future development could include:
 Future development should preserve the project's source-grounded and safety-first design.
 
 ---
+
 ## Design Philosophy
 
 The central design principle of this project is:
 
-    Trusted source
-          ↓
-    Safety screening
-          ↓
-    Structured information
-          ↓
-    Transparent sourcing
-          ↓
-    Patient education
+```text
+Trusted source
+      ↓
+Safety screening
+      ↓
+Structured information
+      ↓
+Transparent sourcing
+      ↓
+Patient education
+```
 
 The goal is not simply to produce a healthcare-related answer.
 
@@ -344,17 +467,12 @@ Rather than creating a system that attempts to replace clinical judgment, I focu
 - Communicates limitations to the user
 
 ---
+
 ## Disclaimer
 
 This application provides general educational information only.
 
-It does not provide:
-
-- Medical diagnosis
-- Individualized treatment recommendations
-- Medication prescriptions
-- Personalized medication or dosage advice
-- Emergency medical assessment
+It does not provide medical diagnosis, individualized treatment recommendations, medication prescriptions, or emergency medical assessment.
 
 Users with medical concerns should consult a qualified healthcare professional.
 
@@ -368,7 +486,6 @@ Anyone experiencing a potentially serious or life-threatening emergency should c
 
 Biology | UMass Amherst
 
-**GitHub:**  
-https://github.com/mehak1308
+GitHub:
 
----
+https://github.com/mehak1308
