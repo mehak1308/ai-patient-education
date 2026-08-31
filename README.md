@@ -1,5 +1,7 @@
 # AI Patient Education Assistant
 
+> **[🚀 Live Demo — Try the Application](https://ai-patient-education.streamlit.app/)**
+
 A source-grounded healthcare education application that helps users explore general medical topics using information retrieved from **MedlinePlus**, a trusted health information resource provided by the U.S. National Library of Medicine and the National Institutes of Health.
 
 The application combines medical-source retrieval, safety screening, structured content presentation, and a professional Streamlit interface to provide accessible patient education while maintaining clear boundaries around personalized medical advice.
